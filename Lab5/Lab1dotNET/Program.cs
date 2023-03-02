@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using static System.Net.WebRequestMethods;
+//using static System.Net.WebRequestMethods;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections;
+using System.Runtime.Serialization;
 
 public static class MyExtensions
 {   
@@ -71,7 +74,7 @@ public static class MyExtensions
     }
 }
 
-
+[Serializable]
 class CustomStringComparer : IComparer<string>
 {
     private readonly IComparer<string> _baseComparer;
@@ -138,7 +141,7 @@ class Program
         Console.WriteLine("Oldest file:  " + root.FindOldest(DateTime.MaxValue));
     }
 
-    public static void Task5_create_collection(string arg)
+    public static SortedDictionary<string, long> Task5_create_collection(string arg)
     {
         var comparer = new CustomStringComparer(StringComparer.CurrentCulture);
         SortedDictionary<string, long> collection = new SortedDictionary<string, long>(comparer);
@@ -156,7 +159,64 @@ class Program
         {
             collection.Add(file.Name, file.Length);
         }
+        return collection;
+    }
 
+    static void Task6_serialize(SortedDictionary<string, long> collection)
+    {
+        // To serialize the dictionary and its key/value pairs,
+        // you must first open a stream for writing.
+        // In this case, use a file stream.
+        FileStream fs = new FileStream("DataFile.dat", FileMode.Create);
+
+        // Construct a BinaryFormatter and use it to serialize the data to the stream.
+        BinaryFormatter formatter = new BinaryFormatter();
+        try
+        {
+            formatter.Serialize(fs, collection);
+        }
+        catch (SerializationException e)
+        {
+            Console.WriteLine("Failed to serialize. Reason: " + e.Message);
+            throw;
+        }
+        finally
+        {
+            fs.Close();
+        }
+    }
+
+    static void Task6_deserialize()
+    {
+        // Declare the collection reference.
+        SortedDictionary<string, long> collection;
+
+        // Open the file containing the data that you want to deserialize.
+        FileStream fs = new FileStream("DataFile.dat", FileMode.Open);
+        try
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            // Deserialize the hashtable from the file and
+            // assign the reference to the local variable.
+            collection = (SortedDictionary<string, long>)formatter.Deserialize(fs);
+        }
+        catch (SerializationException e)
+        {
+            Console.WriteLine("Failed to deserialize. Reason: " + e.Message);
+            throw;
+        }
+        finally
+        {
+            fs.Close();
+        }
+
+        // To prove that the table deserialized correctly,
+        // display the key/value pairs.
+        foreach (var de in collection)
+        {
+            Console.WriteLine("{0} -> {1}", de.Key, de.Value);
+        }
     }
 
     static void Main(string[] args)
@@ -164,7 +224,9 @@ class Program
         Program.Task1_write_arg(args);
         Program.Task2_catalog_tree(args[0]);
         Program.Task3_find_oldest(args[0]);
-        Program.Task5_create_collection(args[0]);
+        SortedDictionary<string, long> collection = Program.Task5_create_collection(args[0]);
+        Program.Task6_serialize(collection);
+        Program.Task6_deserialize();
     }
 
 }
