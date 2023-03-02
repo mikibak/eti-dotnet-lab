@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
+using static System.Net.WebRequestMethods;
 
 public static class MyExtensions
 {   
@@ -26,7 +28,7 @@ public static class MyExtensions
     public static string GetDosAttributes(this FileSystemInfo root) 
     {
         string rahs = "";
-        FileAttributes attributes = File.GetAttributes(root.FullName);
+        FileAttributes attributes = System.IO.File.GetAttributes(root.FullName);
         if((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly) 
         {
             rahs += "r";
@@ -69,9 +71,30 @@ public static class MyExtensions
     }
 }
 
-class program
+
+class CustomStringComparer : IComparer<string>
 {
-    public static void Task1(string[] args)
+    private readonly IComparer<string> _baseComparer;
+    public CustomStringComparer(IComparer<string> baseComparer)
+    {
+        _baseComparer = baseComparer;
+    }
+
+    public int Compare(string x, string y)
+    {
+        if (x.Length > y.Length)
+            return 1;
+
+        if (x.Length < y.Length)
+            return -1;
+
+        return string.Compare(x, y, StringComparison.CurrentCulture);
+    }
+}
+
+class Program
+{
+    public static void Task1_write_arg(string[] args)
     {
         foreach (var arg in args)
         {
@@ -79,7 +102,7 @@ class program
         }
     }
 
-    public static void Task2(string arg, string tabs = "")
+    public static void Task2_catalog_tree(string arg, string tabs = "")
     {
         tabs += "     ";
 
@@ -95,7 +118,7 @@ class program
             Console.Write(" (" + dir.CalculateLength() + ") ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(dir.GetDosAttributes());
-            Task2(dir.FullName, tabs);
+            Task2_catalog_tree(dir.FullName, tabs);
         }
 
         foreach (FileInfo file in Files)
@@ -103,26 +126,45 @@ class program
             //string line = tabs + file.Name + "  " + file.GetDosAttributes();
             Console.Write(tabs + file.Name);
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(" " + file.Length + " B ");
+            Console.Write(" " + file.Length + " bajtow ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(file.GetDosAttributes());
         }
     }
 
-    public static void Task3(string arg)
+    public static void Task3_find_oldest(string arg)
     {
         DirectoryInfo root = new DirectoryInfo(arg);
         Console.WriteLine("Oldest file:  " + root.FindOldest(DateTime.MaxValue));
+    }
 
-        //part b
-        Console.WriteLine("Oldest file:  " + root.FindOldest(DateTime.MaxValue));
+    public static void Task5_create_collection(string arg)
+    {
+        var comparer = new CustomStringComparer(StringComparer.CurrentCulture);
+        SortedDictionary<string, long> collection = new SortedDictionary<string, long>(comparer);
+
+        DirectoryInfo root = new DirectoryInfo(arg);
+        DirectoryInfo[] Dirs = root.GetDirectories();
+        FileInfo[] Files = root.GetFiles("*");
+
+        foreach (DirectoryInfo dir in Dirs)
+        {
+            collection.Add(dir.Name, dir.CalculateLength());
+        }
+
+        foreach (FileInfo file in Files)
+        {
+            collection.Add(file.Name, file.Length);
+        }
+
     }
 
     static void Main(string[] args)
     {
-        program.Task1(args);
-        program.Task2(args[0]);
-        program.Task3(args[0]);
+        Program.Task1_write_arg(args);
+        Program.Task2_catalog_tree(args[0]);
+        Program.Task3_find_oldest(args[0]);
+        Program.Task5_create_collection(args[0]);
     }
 
 }
