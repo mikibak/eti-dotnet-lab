@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,5 +27,17 @@ namespace Lab2dotNET
         {
             InitializeComponent();
         }
+
+        private void ExitClick(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        private void OpenClick(object sender, RoutedEventArgs e)
+        {
+            var dlg = new FolderBrowserDialog() { Description = "Select directory to open" };
+            dlg.ShowDialog();
+        }
     }
+
 }
