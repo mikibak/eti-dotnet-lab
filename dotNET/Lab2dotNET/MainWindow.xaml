@@ -17,5 +17,6 @@
             </MenuItem>
         </Menu>
         <TextBox AcceptsReturn="True" />
+        <TreeView x:Name="TreeView1" Margin="0,0,0,0"/>
     </DockPanel>
 </Window>
