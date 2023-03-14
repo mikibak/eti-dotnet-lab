@@ -16,6 +16,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using System.Diagnostics;
+//using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Lab2dotNET
 {
@@ -36,7 +38,61 @@ namespace Lab2dotNET
 
         private void ContextOpenClick(object sender, RoutedEventArgs e)
         {
-            
+            MenuItem item = sender as MenuItem;
+            string path = (string)item.Tag;
+            string readText = File.ReadAllText(path);
+            textBlock1.Text = readText;
+        }
+
+        private void ContextFileDeleteClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            string path = (string)item.Tag;
+            FileAttributes attributes = System.IO.File.GetAttributes(path);
+            if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+            {
+                //remove read only attribute
+                File.SetAttributes(path, File.GetAttributes(path) & ~FileAttributes.ReadOnly);
+            }
+
+            //delete
+            File.Delete(path);
+            var selected = TreeView1.SelectedItem;
+            TreeViewItem f = (TreeViewItem)TreeView1.SelectedItem;
+            if (f != null)
+            {
+                ItemsControl parent = ItemsControl.ItemsControlFromItemContainer(f);
+                if (parent != null)
+                {
+                    parent.Items.Remove(f);
+                }
+            }
+        }
+
+
+        private void ContextFolderDeleteClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            string path = (string)item.Tag;
+            FileAttributes attributes = System.IO.File.GetAttributes(path);
+            if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+            {
+                //remove read only attribute
+                File.SetAttributes(path, File.GetAttributes(path) & ~FileAttributes.ReadOnly);
+            }
+
+            //delete
+            Directory.Delete(path);
+            var selected = TreeView1.SelectedItem;
+            TreeViewItem f = (TreeViewItem)TreeView1.SelectedItem;
+            if (f != null)
+            {
+                ItemsControl parent = ItemsControl.ItemsControlFromItemContainer(f);
+                if (parent != null)
+                {
+                    parent.Items.Remove(f);
+                }
+            }
         }
 
         public void Task2_catalog_tree(TreeViewItem ParentItem, string arg, string tabs = "")
@@ -56,26 +112,50 @@ namespace Lab2dotNET
                 };
                 ParentItem.Items.Add(ChildItem);
 
+                //add context menu
                 ChildItem.ContextMenu = new System.Windows.Controls.ContextMenu();
-                var menuItem1 = new MenuItem { Header = "Open" };
+                var menuItem1 = new MenuItem
+                {
+                    Header = "Open",
+                    Tag = dir.FullName
+                };
                 menuItem1.Click += new RoutedEventHandler(ContextOpenClick);
-                var menuItem2 = new MenuItem { Header = "Delete" };
-                menuItem2.Click += new RoutedEventHandler(ContextOpenClick);
+                var menuItem2 = new MenuItem
+                {
+                    Header = "Delete",
+                    Tag = dir.FullName
+                };
+                menuItem2.Click += new RoutedEventHandler(ContextFolderDeleteClick);
                 ChildItem.ContextMenu.Items.Add(menuItem1);
                 ChildItem.ContextMenu.Items.Add(menuItem2);
-                ChildItem.Selected += new RoutedEventHandler(ContextOpenClick);
 
                 Task2_catalog_tree(ChildItem, dir.FullName, tabs);
             }
 
             foreach (FileInfo file in Files)
             {
-                TreeViewItem Child1Item = new TreeViewItem
+                TreeViewItem ChildItem = new TreeViewItem
                 {
                     Header = file.Name,
                     Tag = file.FullName
                 };
-                ParentItem.Items.Add(Child1Item);
+                ParentItem.Items.Add(ChildItem);
+
+
+                ChildItem.ContextMenu = new System.Windows.Controls.ContextMenu();
+                var menuItem1 = new MenuItem {
+                    Header = "Open",
+                    Tag = file.FullName
+                };
+                menuItem1.Click += new RoutedEventHandler(ContextOpenClick);
+                var menuItem2 = new MenuItem
+                {
+                    Header = "Delete",
+                    Tag = file.FullName
+                };
+                menuItem2.Click += new RoutedEventHandler(ContextFileDeleteClick);
+                ChildItem.ContextMenu.Items.Add(menuItem1);
+                ChildItem.ContextMenu.Items.Add(menuItem2);
             }
         }
 

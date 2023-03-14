@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-//using static System.Net.WebRequestMethods;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
 using System.Runtime.Serialization;
@@ -99,10 +98,21 @@ class Program
 {
     public static void Task1_write_arg(string[] args)
     {
-        foreach (var arg in args)
+        foreach (var arg1 in args)
         {
-            Console.WriteLine(arg); 
+            Console.WriteLine(arg1 + "\r\n"); 
         }
+
+        var arg = args[0];
+
+        //write first line in console
+        DirectoryInfo root = new DirectoryInfo(arg);
+        Console.Write(root.Name);
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.Write(" (" + root.CalculateLength() + ") ");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(root.GetDosAttributes());
+
     }
 
     public static void Task2_catalog_tree(string arg, string tabs = "")
@@ -115,7 +125,6 @@ class Program
 
         foreach (DirectoryInfo dir in Dirs)
         {
-            //string line = tabs + dir.Name + " (" + dir.CalculateLength() + ") " + dir.GetDosAttributes();
             Console.Write(tabs + dir.Name);
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write(" (" + dir.CalculateLength() + ") ");
@@ -126,7 +135,6 @@ class Program
 
         foreach (FileInfo file in Files)
         {
-            //string line = tabs + file.Name + "  " + file.GetDosAttributes();
             Console.Write(tabs + file.Name);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write(" " + file.Length + " bajtow ");
@@ -164,12 +172,8 @@ class Program
 
     static void Task6_serialize(SortedDictionary<string, long> collection)
     {
-        // To serialize the dictionary and its key/value pairs,
-        // you must first open a stream for writing.
-        // In this case, use a file stream.
         FileStream fs = new FileStream("DataFile.dat", FileMode.Create);
 
-        // Construct a BinaryFormatter and use it to serialize the data to the stream.
         BinaryFormatter formatter = new BinaryFormatter();
         try
         {
@@ -188,17 +192,12 @@ class Program
 
     static void Task6_deserialize()
     {
-        // Declare the collection reference.
         SortedDictionary<string, long> collection;
-
-        // Open the file containing the data that you want to deserialize.
         FileStream fs = new FileStream("DataFile.dat", FileMode.Open);
         try
         {
             BinaryFormatter formatter = new BinaryFormatter();
 
-            // Deserialize the hashtable from the file and
-            // assign the reference to the local variable.
             collection = (SortedDictionary<string, long>)formatter.Deserialize(fs);
         }
         catch (SerializationException e)
@@ -211,8 +210,7 @@ class Program
             fs.Close();
         }
 
-        // To prove that the table deserialized correctly,
-        // display the key/value pairs.
+        //write in order
         foreach (var de in collection)
         {
             Console.WriteLine("{0} -> {1}", de.Key, de.Value);
