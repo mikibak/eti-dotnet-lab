@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Diagnostics;
 //using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+//using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Lab2dotNET
 {
@@ -36,7 +37,7 @@ namespace Lab2dotNET
             System.Windows.Application.Current.Shutdown();
         }
 
-        private void ContextOpenClick(object sender, RoutedEventArgs e)
+        public void ContextOpenClick(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
             string path = (string)item.Tag;
@@ -44,7 +45,16 @@ namespace Lab2dotNET
             textBlock1.Text = readText;
         }
 
-        private void ContextFileDeleteClick(object sender, RoutedEventArgs e)
+        public void ContextCreateClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            string path = (string)item.Tag;
+            TreeViewItem f = (TreeViewItem)TreeView1.SelectedItem;
+            Create win2 = new Create(path, f, this);
+            win2.Show();
+        }
+
+        public void ContextFileDeleteClick(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
             string path = (string)item.Tag;
@@ -57,7 +67,6 @@ namespace Lab2dotNET
 
             //delete
             File.Delete(path);
-            var selected = TreeView1.SelectedItem;
             TreeViewItem f = (TreeViewItem)TreeView1.SelectedItem;
             if (f != null)
             {
@@ -70,7 +79,7 @@ namespace Lab2dotNET
         }
 
 
-        private void ContextFolderDeleteClick(object sender, RoutedEventArgs e)
+        public void ContextFolderDeleteClick(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
             string path = (string)item.Tag;
@@ -82,7 +91,7 @@ namespace Lab2dotNET
             }
 
             //delete
-            Directory.Delete(path);
+            Directory.Delete(path, true);
             var selected = TreeView1.SelectedItem;
             TreeViewItem f = (TreeViewItem)TreeView1.SelectedItem;
             if (f != null)
@@ -93,6 +102,34 @@ namespace Lab2dotNET
                     parent.Items.Remove(f);
                 }
             }
+        }
+
+        public void SelectedItem(object sender, RoutedEventArgs e)
+        {
+            lblCursorPosition.Text = "";
+            TreeViewItem item = sender as TreeViewItem;
+            string path = (string)item.Tag;
+            FileAttributes attributes = System.IO.File.GetAttributes(path);
+            if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+            {
+                lblCursorPosition.Text += "r";
+            } 
+            else lblCursorPosition.Text += "-";
+            if ((attributes & FileAttributes.Archive) == FileAttributes.Archive)
+            {
+                lblCursorPosition.Text += "a";
+            }
+            else lblCursorPosition.Text += "-";
+            if ((attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
+            {
+                lblCursorPosition.Text += "h";
+            }
+            else lblCursorPosition.Text += "-";
+            if ((attributes & FileAttributes.System) == FileAttributes.System)
+            {
+                lblCursorPosition.Text += "s";
+            }
+            else lblCursorPosition.Text += "-";
         }
 
         public void Task2_catalog_tree(TreeViewItem ParentItem, string arg, string tabs = "")
@@ -110,16 +147,19 @@ namespace Lab2dotNET
                     Header = dir.Name,
                     Tag = dir.FullName
                 };
+                ChildItem.Margin = new Thickness(0, 0, 10, 0);
                 ParentItem.Items.Add(ChildItem);
+
+                ChildItem.Selected += new RoutedEventHandler(SelectedItem);
 
                 //add context menu
                 ChildItem.ContextMenu = new System.Windows.Controls.ContextMenu();
                 var menuItem1 = new MenuItem
                 {
-                    Header = "Open",
+                    Header = "Create",
                     Tag = dir.FullName
                 };
-                menuItem1.Click += new RoutedEventHandler(ContextOpenClick);
+                menuItem1.Click += new RoutedEventHandler(ContextCreateClick);
                 var menuItem2 = new MenuItem
                 {
                     Header = "Delete",
@@ -139,7 +179,10 @@ namespace Lab2dotNET
                     Header = file.Name,
                     Tag = file.FullName
                 };
+                ChildItem.Margin = new Thickness(0, 0, 20, 0);
                 ParentItem.Items.Add(ChildItem);
+
+                ChildItem.Selected += new RoutedEventHandler(SelectedItem);
 
 
                 ChildItem.ContextMenu = new System.Windows.Controls.ContextMenu();
@@ -171,6 +214,7 @@ namespace Lab2dotNET
                 Header = folderName,
                 Tag = dlg.SelectedPath
             };
+            ParentItem.Margin = new Thickness(0, 0, 20, 0);
             TreeView1.Items.Add(ParentItem);
 
             Task2_catalog_tree(ParentItem, dlg.SelectedPath);

@@ -1,0 +1,21 @@
+﻿<Window x:Class="Lab2dotNET.Create"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Lab2dotNET"
+        mc:Ignorable="d"
+        Title="Create" Height="450" Width="800">
+    <Grid RenderTransformOrigin="0.495,0.572">
+        <Label Margin="20,40,106,325">Name</Label>
+        <TextBox x:Name="CreatedName" Margin="87,59,20,325" RenderTransformOrigin="0.5,0.5"/>
+        <RadioButton x:Name="FileRadio" Margin="87,99,133,290">File</RadioButton>
+        <RadioButton x:Name="DirectoryRadio" Margin="159,99,53,290">Directory</RadioButton>
+        <CheckBox x:Name="ReadOnlyBox" Margin="87,148,61,241">ReadOnly</CheckBox>
+        <CheckBox x:Name="ArchiveBox" Margin="87,178,61,211">Archive</CheckBox>
+        <CheckBox x:Name="HiddenBox" Margin="87,208,61,181">Hidden</CheckBox>
+        <CheckBox x:Name="SystemBox" Margin="86,238,62,151">System</CheckBox>
+        <Button x:Name="buttonOK" IsDefault="True" Margin="132,323,495,66" Click="CreateOkClick" RenderTransformOrigin="0.884,0.605">OK</Button>
+        <Button x:Name="buttonCancel"  IsCancel="True" Margin="538,323,133,66" RenderTransformOrigin="-0.947,-5.032" Click="CreateCancelClick">Cancel</Button>
+    </Grid>
+</Window>

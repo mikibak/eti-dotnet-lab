@@ -16,10 +16,15 @@
                 <MenuItem Header="_Exit" Click="ExitClick" />
             </MenuItem>
         </Menu>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Name="lblCursorPosition" />
+            </StatusBarItem>
+        </StatusBar>
         <TextBox AcceptsReturn="True" />
         <TreeView x:Name="TreeView1" Margin="0,0,0,0"/>
         <TextBlock  Name="textBlock1" 
-                TextWrapping="Wrap" Background="AntiqueWhite" TextAlignment="Center">
+                TextWrapping="Wrap" Background="MistyRose" TextAlignment="Center">
         </TextBlock>
     </DockPanel>
 </Window>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
 using System.Runtime.Serialization;
+using System.Data;
 
 public static class MyExtensions
 {   
@@ -115,7 +116,7 @@ class Program
 
     }
 
-    public static void Task2_catalog_tree(string arg, string tabs = "")
+    public static System.DateTime Task2_catalog_tree(string arg, System.DateTime oldestFile, string tabs = "")
     {
         tabs += "     ";
 
@@ -130,7 +131,7 @@ class Program
             Console.Write(" (" + dir.CalculateLength() + ") ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(dir.GetDosAttributes());
-            Task2_catalog_tree(dir.FullName, tabs);
+            Task2_catalog_tree(dir.FullName, oldestFile, tabs);
         }
 
         foreach (FileInfo file in Files)
@@ -140,13 +141,18 @@ class Program
             Console.Write(" " + file.Length + " bajtow ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(file.GetDosAttributes());
+
+            if (file.CreationTime < oldestFile) oldestFile = file.CreationTime;
         }
+
+        return oldestFile;
     }
 
-    public static void Task3_find_oldest(string arg)
+    public static void Task3_find_oldest(string arg, System.DateTime oldestFile)
     {
-        DirectoryInfo root = new DirectoryInfo(arg);
-        Console.WriteLine("Oldest file:  " + root.FindOldest(DateTime.MaxValue));
+        //DirectoryInfo root = new DirectoryInfo(arg);
+        //Console.WriteLine("Oldest file:  " + root.FindOldest(DateTime.MaxValue));
+        Console.WriteLine("Oldest file:  " + oldestFile);
     }
 
     public static SortedDictionary<string, long> Task5_create_collection(string arg)
@@ -219,9 +225,10 @@ class Program
 
     static void Main(string[] args)
     {
+        System.DateTime oldestFile = DateTime.MaxValue;
         Program.Task1_write_arg(args);
-        Program.Task2_catalog_tree(args[0]);
-        Program.Task3_find_oldest(args[0]);
+        oldestFile = Program.Task2_catalog_tree(args[0], oldestFile);
+        Program.Task3_find_oldest(args[0], oldestFile);
         SortedDictionary<string, long> collection = Program.Task5_create_collection(args[0]);
         Program.Task6_serialize(collection);
         Program.Task6_deserialize();
