@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Diagnostics;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 //using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 //using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -35,6 +36,14 @@ namespace Lab2dotNET
         private void ExitClick(object sender, RoutedEventArgs e)
         {
             System.Windows.Application.Current.Shutdown();
+        }
+
+        private void AboutClick(object sender, RoutedEventArgs e)
+        {
+            string message = "Application: WPF File Explorer\nAuthor: Mikołaj Bąk";
+            string boxTitle = "About";
+            MessageBoxButtons buttons = MessageBoxButtons.OK;
+            System.Windows.Forms.MessageBox.Show(message, boxTitle, buttons);
         }
 
         public void ContextOpenClick(object sender, RoutedEventArgs e)
