@@ -9,9 +9,9 @@ using System.Runtime.CompilerServices;
 
 public class Car
 {
-    string model;
-    int year;
-    Engine engine;
+    public string model { get; private set; }
+    public int year { get; private set; }
+    public Engine engine { get; private set; }
 
     public Car(string model, Engine engine, int year)
     {
@@ -23,9 +23,9 @@ public class Car
 
 public class Engine
 {
-    string model;
-    double displacement;
-    double horsePower;
+    public string model { get; private set; }
+    public double displacement { get; private set; }
+    public double horsePower { get; private set; }
 
     public Engine(double displacement, double horsePower, string model)
     {
@@ -39,6 +39,7 @@ public static class MainClass
 {
     static void Main(string[] args)
     {
+
         List<Car> myCars = new List<Car>(){
             new Car("E250", new Engine(1.8, 204, "CGI"), 2009),
             new Car("E350", new Engine(3.5, 292, "CGI"), 2009),
@@ -50,6 +51,18 @@ public static class MainClass
             new Car("S6", new Engine(4.0, 414, "TFSI"), 2012),
             new Car("S8", new Engine(4.0, 513, "TFSI"), 2012)
         };
+
+        var results = myCars.Where(car => car.model.Equals("A6"))
+            .Select(car => new
+            {
+                engineType = car.engine.model.Equals("TDI") ? "diesel" : "petrol",
+                hppl = car.engine.horsePower/car.engine.displacement
+            });
+
+        foreach (var car in results)
+        {
+            Console.WriteLine(car);
+        }
     }
 
 }
