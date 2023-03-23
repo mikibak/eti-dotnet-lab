@@ -6,6 +6,7 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Data;
 using System.Runtime.CompilerServices;
+using System.Runtime.ConstrainedExecution;
 
 public class Car
 {
@@ -62,6 +63,25 @@ public static class MainClass
         foreach (var car in results)
         {
             Console.WriteLine(car);
+        }
+        Console.WriteLine();
+        /*
+        var results2 = results.GroupBy(
+                p => p.engineType,
+                p => p.hppl,
+                (key, value) => new { engineType = key, hpplAverage = value }
+            );
+        */
+        var results2 = results.GroupBy(
+                p => p.engineType,
+                p => p.hppl,
+                (key, value) => new { engineType = key, hpplAverage = value.ToList().Average() }
+            );
+
+
+        foreach (var car in results2)
+        {
+            Console.WriteLine(car.hpplAverage);
         }
     }
 
