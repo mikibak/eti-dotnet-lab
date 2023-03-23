@@ -7,12 +7,14 @@ using System.Runtime.Serialization;
 using System.Data;
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
+using System.Xml.Serialization;
 
+[Serializable]
 public class Car
 {
-    public string model { get; private set; }
-    public int year { get; private set; }
-    public Engine engine { get; private set; }
+    public string model { get; set; }
+    public int year { get; set; }
+    public Engine engine { get; set; }
 
     public Car(string model, Engine engine, int year)
     {
@@ -20,13 +22,22 @@ public class Car
         this.year = year;
         this.engine = engine;
     }
+
+    public Car()
+    {
+        this.model = "model";
+        this.year = 1970;
+        this.engine = new Engine();
+    }
 }
 
+
+[Serializable]
 public class Engine
 {
-    public string model { get; private set; }
-    public double displacement { get; private set; }
-    public double horsePower { get; private set; }
+    public string model { get; set; }
+    public double displacement { get; set; }
+    public double horsePower { get; set; }
 
     public Engine(double displacement, double horsePower, string model)
     {
@@ -34,7 +45,14 @@ public class Engine
         this.displacement = displacement;
         this.horsePower = horsePower;
     }
+
+    public Engine() { 
+        this.model = "model";
+        this.displacement = 0.0d;
+        this.horsePower = 0.0d;
+    }
 }
+
 
 public static class MainClass
 {
@@ -83,6 +101,15 @@ public static class MainClass
         {
             Console.WriteLine(car.hpplAverage);
         }
+
+        //FileStream fs = new FileStream("C:\\Users\\mikolaj\\test.xml", FileMode.OpenOrCreate);
+        XmlSerializer serializer = new XmlSerializer(typeof(List<Car>));
+        using (var writer = new StreamWriter("C:\\Users\\mikolaj\\test.xml"))
+        {
+            serializer.Serialize(writer, myCars);
+        }
+        //s.Serialize(fs, myCars);
+
     }
 
 }
