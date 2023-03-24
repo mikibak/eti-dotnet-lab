@@ -8,26 +8,32 @@ using System.Data;
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using System.Xml.Serialization;
+using System.Xml.Linq;
+using System.Xml.XPath;
+using System.Xml;
 
 [Serializable]
+[XmlType("car")]
 public class Car
 {
     public string model { get; set; }
     public int year { get; set; }
-    public Engine engine { get; set; }
 
-    public Car(string model, Engine engine, int year)
+    [XmlElement("engine")]
+    public Engine motor { get; set; }
+
+    public Car(string model, Engine motor, int year)
     {
         this.model = model;
         this.year = year;
-        this.engine = engine;
+        this.motor = motor;
     }
 
     public Car()
     {
         this.model = "model";
         this.year = 1970;
-        this.engine = new Engine();
+        this.motor = new Engine();
     }
 }
 
@@ -35,6 +41,7 @@ public class Car
 [Serializable]
 public class Engine
 {
+    [XmlAttribute]
     public string model { get; set; }
     public double displacement { get; set; }
     public double horsePower { get; set; }
@@ -58,7 +65,6 @@ public static class MainClass
 {
     static void Main(string[] args)
     {
-
         List<Car> myCars = new List<Car>(){
             new Car("E250", new Engine(1.8, 204, "CGI"), 2009),
             new Car("E350", new Engine(3.5, 292, "CGI"), 2009),
@@ -74,8 +80,8 @@ public static class MainClass
         var results = myCars.Where(car => car.model.Equals("A6"))
             .Select(car => new
             {
-                engineType = car.engine.model.Equals("TDI") ? "diesel" : "petrol",
-                hppl = car.engine.horsePower/car.engine.displacement
+                motorType = car.motor.model.Equals("TDI") ? "diesel" : "petrol",
+                hppl = car.motor.horsePower/car.motor.displacement
             });
 
         foreach (var car in results)
@@ -83,33 +89,65 @@ public static class MainClass
             Console.WriteLine(car);
         }
         Console.WriteLine();
-        /*
+ 
         var results2 = results.GroupBy(
-                p => p.engineType,
+                p => p.motorType,
                 p => p.hppl,
-                (key, value) => new { engineType = key, hpplAverage = value }
+                (key, value) => new { motorType = key, hpplAverage = value.ToList().Average() }
             );
-        */
-        var results2 = results.GroupBy(
-                p => p.engineType,
-                p => p.hppl,
-                (key, value) => new { engineType = key, hpplAverage = value.ToList().Average() }
-            );
-
 
         foreach (var car in results2)
         {
-            Console.WriteLine(car.hpplAverage);
+            Console.WriteLine(car);
         }
+        Console.WriteLine();
 
-        //FileStream fs = new FileStream("C:\\Users\\mikolaj\\test.xml", FileMode.OpenOrCreate);
-        XmlSerializer serializer = new XmlSerializer(typeof(List<Car>));
-        using (var writer = new StreamWriter("C:\\Users\\mikolaj\\test.xml"))
+        string filename = "C:\\Users\\mikolaj\\CarsCollection.xml";
+
+        Serialize(myCars, filename);
+
+        List<Car> myCarsDeserialized = Deserialize(filename);
+
+        foreach (var car in myCarsDeserialized)
         {
-            serializer.Serialize(writer, myCars);
+            Console.WriteLine(car.model + ", " + car.year) ;
         }
-        //s.Serialize(fs, myCars);
+        Console.WriteLine();
+
+
+        XElement rootNode = XElement.Load(filename);
+        double avgHP = (double)rootNode.XPathEvaluate("sum(//car/engine[@model!='TDI']/horsePower) div count(//car/engine[@model!='TDI']/horsePower)");
+        Console.WriteLine("Average horse power: " + avgHP);
+        Console.WriteLine();
+
+        IEnumerable<XElement> models = rootNode.XPathSelectElements("//car/model[not(. = preceding::car/model)]");
+        Console.WriteLine("Models: ");
+        foreach (var model in models)
+        {
+            Console.WriteLine(model.ToString());
+        }
 
     }
 
+    private static List<Car> Deserialize(string filename)
+    {
+        List<Car> myCarsDeserialized;
+        XmlSerializer serializer2 = new XmlSerializer(typeof(List<Car>), new XmlRootAttribute("cars"));
+
+        using (Stream reader = new FileStream(filename, FileMode.Open))
+        {
+            // Call the Deserialize method to restore the object's state.
+            myCarsDeserialized = (List<Car>)serializer2.Deserialize(reader);
+        }
+        return myCarsDeserialized;
+    }
+
+    private static void Serialize(List<Car> myCars, string filename)
+    {
+        XmlSerializer serializer = new XmlSerializer(typeof(List<Car>), new XmlRootAttribute("cars"));
+        using (var writer = new StreamWriter(filename))
+        {
+            serializer.Serialize(writer, myCars);
+        }
+    }
 }
