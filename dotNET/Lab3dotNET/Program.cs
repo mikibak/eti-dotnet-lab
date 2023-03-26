@@ -61,7 +61,7 @@ public class Engine
 }
 
 
-public static class MainClass
+public class MainClass
 {
     static void Main(string[] args)
     {
@@ -77,11 +77,58 @@ public static class MainClass
             new Car("S8", new Engine(4.0, 513, "TFSI"), 2012)
         };
 
+        LinqQueries(myCars);
+
+        string filename = "C:\\Users\\mikolaj\\CarsCollection.xml";
+
+        Serialize(myCars, filename);
+
+        ShowDeserialization(filename);
+
+        CalculateAverageHP(filename);
+
+        WriteCarModels(filename);
+
+        createXmlFromLinq(myCars);
+
+    }
+
+    private static void ShowDeserialization(string filename)
+    {
+        List<Car> myCarsDeserialized = Deserialize(filename);
+        foreach (var car in myCarsDeserialized)
+        {
+            Console.WriteLine(car.model + ", " + car.year);
+        }
+        Console.WriteLine();
+    }
+
+    private static void WriteCarModels(string filename)
+    {
+        XElement rootNode = XElement.Load(filename);
+        IEnumerable<XElement> models = rootNode.XPathSelectElements("//car/model[not(. = preceding::car/model)]");
+        Console.WriteLine("Models: ");
+        foreach (var model in models)
+        {
+            Console.WriteLine(model.ToString());
+        }
+    }
+
+    private static void CalculateAverageHP(string filename)
+    {
+        XElement rootNode = XElement.Load(filename);
+        double avgHP = (double)rootNode.XPathEvaluate("sum(//car/engine[@model!='TDI']/horsePower) div count(//car/engine[@model!='TDI']/horsePower)");
+        Console.WriteLine("Average horse power: " + avgHP);
+        Console.WriteLine();
+    }
+
+    private static void LinqQueries(List<Car> myCars)
+    {
         var results = myCars.Where(car => car.model.Equals("A6"))
             .Select(car => new
             {
                 motorType = car.motor.model.Equals("TDI") ? "diesel" : "petrol",
-                hppl = car.motor.horsePower/car.motor.displacement
+                hppl = car.motor.horsePower / car.motor.displacement
             });
 
         foreach (var car in results)
@@ -89,7 +136,9 @@ public static class MainClass
             Console.WriteLine(car);
         }
         Console.WriteLine();
- 
+
+
+
         var results2 = results.GroupBy(
                 p => p.motorType,
                 p => p.hppl,
@@ -101,32 +150,21 @@ public static class MainClass
             Console.WriteLine(car);
         }
         Console.WriteLine();
+    }
 
-        string filename = "C:\\Users\\mikolaj\\CarsCollection.xml";
-
-        Serialize(myCars, filename);
-
-        List<Car> myCarsDeserialized = Deserialize(filename);
-
-        foreach (var car in myCarsDeserialized)
-        {
-            Console.WriteLine(car.model + ", " + car.year) ;
-        }
-        Console.WriteLine();
-
-
-        XElement rootNode = XElement.Load(filename);
-        double avgHP = (double)rootNode.XPathEvaluate("sum(//car/engine[@model!='TDI']/horsePower) div count(//car/engine[@model!='TDI']/horsePower)");
-        Console.WriteLine("Average horse power: " + avgHP);
-        Console.WriteLine();
-
-        IEnumerable<XElement> models = rootNode.XPathSelectElements("//car/model[not(. = preceding::car/model)]");
-        Console.WriteLine("Models: ");
-        foreach (var model in models)
-        {
-            Console.WriteLine(model.ToString());
-        }
-
+    private static void createXmlFromLinq(List<Car> myCars)
+    {
+        IEnumerable<XElement> nodes = myCars
+                .Select(n =>
+                new XElement("car",
+                    new XElement("model", n.model),
+                    new XElement("year", n.year),
+                    new XElement("engine",
+                        new XAttribute("model", n.motor.model),
+                        new XElement("displacement", n.motor.displacement),
+                        new XElement("horsePower", n.motor.horsePower))));
+        XElement rootNode = new XElement("cars", nodes); //create a root node to contain the query results
+        rootNode.Save("C:\\Users\\mikolaj\\CarsCollectionLinq.xml");
     }
 
     private static List<Car> Deserialize(string filename)
