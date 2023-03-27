@@ -12,54 +12,6 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Xml;
 
-[Serializable]
-[XmlType("car")]
-public class Car
-{
-    public string model { get; set; }
-    public int year { get; set; }
-
-    [XmlElement("engine")]
-    public Engine motor { get; set; }
-
-    public Car(string model, Engine motor, int year)
-    {
-        this.model = model;
-        this.year = year;
-        this.motor = motor;
-    }
-
-    public Car()
-    {
-        this.model = "model";
-        this.year = 1970;
-        this.motor = new Engine();
-    }
-}
-
-
-[Serializable]
-public class Engine
-{
-    [XmlAttribute]
-    public string model { get; set; }
-    public double displacement { get; set; }
-    public double horsePower { get; set; }
-
-    public Engine(double displacement, double horsePower, string model)
-    {
-        this.model = model;
-        this.displacement = displacement;
-        this.horsePower = horsePower;
-    }
-
-    public Engine() { 
-        this.model = "model";
-        this.displacement = 0.0d;
-        this.horsePower = 0.0d;
-    }
-}
-
 
 public class MainClass
 {
@@ -89,7 +41,51 @@ public class MainClass
 
         WriteCarModels(filename);
 
-        createXmlFromLinq(myCars);
+        CreateXmlFromLinq(myCars);
+
+        ModifyCarsCollection(filename);
+
+        XAttribute attr = new XAttribute("style", "border: 1px solid purple; background-color: magenta; color: blue");
+        IEnumerable<XElement> rows = myCars
+                .Select(car =>
+                new XElement("tr", attr,
+                    new XElement("td", attr, car.model),
+                    new XElement("td", attr, car.motor.model),
+                    new XElement("td", attr, car.motor.displacement),
+                    new XElement("td", attr, car.motor.horsePower),
+                    new XElement("td", attr, car.year)));
+        XElement table = new XElement("table", attr, rows);
+        table.Save("C:\\Users\\mikolaj\\Table.html");
+
+    }
+
+    private static void ModifyCarsCollection(string filename)
+    {
+        XDocument xdoc = XDocument.Load(filename);
+        foreach (var car in xdoc.Elements())
+        {
+            foreach (var field in car.Elements())
+            {
+                if (field.Name == "engine")
+                {
+                    foreach (var engineElement in field.Elements())
+                    {
+                        if (engineElement.Name == "horsePower")
+                        {
+                            engineElement.Name = "hp";
+                        }
+                    }
+                }
+                else if (field.Name == "model")
+                {
+                    var yearField = car.Element("year");
+                    XAttribute attribute = new XAttribute("year", yearField.Value);
+                    field.Add(attribute);
+                    yearField.Remove();
+                }
+            }
+        }
+        xdoc.Save("CarsCollectionModified.xml");
 
     }
 
@@ -152,7 +148,7 @@ public class MainClass
         Console.WriteLine();
     }
 
-    private static void createXmlFromLinq(List<Car> myCars)
+    private static void CreateXmlFromLinq(List<Car> myCars)
     {
         IEnumerable<XElement> nodes = myCars
                 .Select(n =>
