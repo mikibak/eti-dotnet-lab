@@ -7,6 +7,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <TextBox x:Name="calculateNewtonSymbolTasksTextBox" Margin="321,217,267,153"></TextBox>
+        <TextBox x:Name="calculateNewtonSymbolDelegatesTextBox" Margin="62,217,526,153"></TextBox>
+        <TextBox x:Name="calculateNewtonSymbolAsyncAwaitTextBox" Margin="554,217,34,153"></TextBox>
+        <TextBox x:Name="nBox" Margin="321,54,321,341" TextChanged="kChangedEventHandler">3</TextBox>
+        <TextBox x:Name="kBox" Margin="321,10,321,385" TextChanged="nChangedEventHandler">5</TextBox>
+        <TextBox x:Name="statusBox" Margin="540,10,102,385">Status</TextBox>
+        <Button x:Name="calculateNewtonSymbolTasksButton" Click="CalculateNewtonSymbolTasks" Margin="321,139,267,245">Calculate newton symbol using Tasks</Button>
+        <Button x:Name="calculateNewtonSymbolDelegatesButton" Click="CalculateNewtonSymbolDelegates" Margin="62,139,526,245">Calculate newton symbol asynchronously using Delegates</Button>
+        <Button x:Name="calculateNewtonSymbolAsyncAwaitButton" Click="CalculateNewtonSymbolAsyncAwait" Margin="554,139,34,245">Calculate newton symbol using async and await</Button>
     </Grid>
 </Window>
