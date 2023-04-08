@@ -29,9 +29,9 @@ public class MainClass
             new Car("S8", new Engine(4.0, 513, "TFSI"), 2012)
         };
 
-        LinqQueries(myCars);
-
         string filename = "C:\\Users\\mikolaj\\CarsCollection.xml";
+
+        LinqQueries(myCars);
 
         Serialize(myCars, filename);
 
@@ -45,6 +45,12 @@ public class MainClass
 
         ModifyCarsCollection(filename);
 
+        CreateXhtmlTable(myCars);
+
+    }
+
+    private static void CreateXhtmlTable(List<Car> myCars)
+    {
         XAttribute attr = new XAttribute("style", "border: 1px solid purple; background-color: magenta; color: blue");
         IEnumerable<XElement> rows = myCars
                 .Select(car =>
@@ -56,17 +62,17 @@ public class MainClass
                     new XElement("td", attr, car.year)));
         XElement table = new XElement("table", attr, rows);
         table.Save("C:\\Users\\mikolaj\\Table.html");
-
     }
 
     private static void ModifyCarsCollection(string filename)
     {
         XDocument xdoc = XDocument.Load(filename);
-        foreach (var car in xdoc.Elements())
+        var root = xdoc.Root;
+        foreach (var car in root.Elements())
         {
             foreach (var field in car.Elements())
             {
-                if (field.Name == "engine")
+                if (field.Name.LocalName == "engine")
                 {
                     foreach (var engineElement in field.Elements())
                     {
@@ -76,7 +82,7 @@ public class MainClass
                         }
                     }
                 }
-                else if (field.Name == "model")
+                else if (field.Name.LocalName == "model")
                 {
                     var yearField = car.Element("year");
                     XAttribute attribute = new XAttribute("year", yearField.Value);
@@ -85,7 +91,7 @@ public class MainClass
                 }
             }
         }
-        xdoc.Save("CarsCollectionModified.xml");
+        xdoc.Save("C:\\Users\\mikolaj\\CarsCollectionModified.xml");
 
     }
 
