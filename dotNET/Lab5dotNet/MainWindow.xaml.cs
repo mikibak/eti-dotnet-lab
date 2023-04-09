@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -90,7 +94,7 @@ namespace Lab5dotNet
             Func<int> upperDelegate = CalculateUpper;
             Func<int> lowerDelegate = CalculateLower;
 
-            var upper = upperDelegate.BeginInvoke(null, null);//await Task.Run(upperDelegate);
+            var upper = upperDelegate.BeginInvoke(null, null);
             var lower = lowerDelegate.BeginInvoke(null, null);
             int result = upperDelegate.EndInvoke(upper) / lowerDelegate.EndInvoke(lower);
             calculateNewtonSymbolDelegatesTextBox.Text = result.ToString();
@@ -122,6 +126,45 @@ namespace Lab5dotNet
                 result *= i;
             }
             return result;
+        }
+
+        public void CalculateFibonacci(object sender, RoutedEventArgs e)
+        {
+            BackgroundWorker bw = new BackgroundWorker();
+            bw.DoWork += (object sender, DoWorkEventArgs args) =>
+            {
+                BackgroundWorker worker = sender as BackgroundWorker;
+                int previouspreviousNumber;
+                int previousNumber = 0;
+                int progress = 0;
+                int currentNumber = 1;
+
+                for (int i = 1; i < N; i++) {
+                    previouspreviousNumber = previousNumber;
+                    previousNumber = currentNumber;
+                    currentNumber = previouspreviousNumber + previousNumber;
+                    progress = (i* 100) / N;
+                    bw.ReportProgress(progress);
+                    Thread.Sleep(100);
+                }
+                args.Result = currentNumber;
+            };
+            bw.ProgressChanged += ((object sender, ProgressChangedEventArgs args) =>
+            {
+                progressBar.Value = args.ProgressPercentage;
+            });
+            bw.RunWorkerCompleted += ((object sender, RunWorkerCompletedEventArgs args) =>
+            {
+                progressBar.Value = 100;
+                MessageBox.Show("Result: " + args.Result);
+                progressBar.Value = 0;
+            });
+
+            bw.WorkerReportsProgress = true;
+            bw.RunWorkerAsync(100);
+
+            //int result = 0;
+            //calculateFibonacciTextBox.Text = result.ToString();
         }
     }
 }
