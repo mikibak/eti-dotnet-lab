@@ -134,17 +134,17 @@ namespace Lab5dotNet
             bw.DoWork += (object sender, DoWorkEventArgs args) =>
             {
                 BackgroundWorker worker = sender as BackgroundWorker;
-                int previouspreviousNumber;
-                int previousNumber = 0;
-                int progress = 0;
-                int currentNumber = 1;
+                long previouspreviousNumber;
+                long previousNumber = 0;
+                long progress = 0;
+                long currentNumber = 1;
 
                 for (int i = 1; i < N; i++) {
                     previouspreviousNumber = previousNumber;
                     previousNumber = currentNumber;
                     currentNumber = previouspreviousNumber + previousNumber;
                     progress = (i* 100) / N;
-                    bw.ReportProgress(progress);
+                    bw.ReportProgress((int)progress);
                     Thread.Sleep(100);
                 }
                 args.Result = currentNumber;
