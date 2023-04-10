@@ -174,18 +174,21 @@ namespace Lab5dotNet
         {
             var dlg = new System.Windows.Forms.FolderBrowserDialog() { Description = "Select directory to compress" };
             System.Windows.Forms.DialogResult result = dlg.ShowDialog();
-            string folderName = System.IO.Path.GetFileName(dlg.SelectedPath);
-            DirectoryInfo root = new DirectoryInfo(dlg.SelectedPath);
-            CompressFileAndItsChildren(root);
+            if(dlg.SelectedPath != "") {
+                DirectoryInfo root = new DirectoryInfo(dlg.SelectedPath);
+                CompressFileAndItsChildren(root);
+            }
         }
 
         public void DecompressFolder(object sender, RoutedEventArgs e)
         {
             var dlg = new System.Windows.Forms.FolderBrowserDialog() { Description = "Select directory to decompress" };
             System.Windows.Forms.DialogResult result = dlg.ShowDialog();
-            string folderName = System.IO.Path.GetFileName(dlg.SelectedPath);
-            DirectoryInfo root = new DirectoryInfo(dlg.SelectedPath);
-            DecompressFileAndItsChildren(root);
+            if (dlg.SelectedPath != null)
+            {
+                DirectoryInfo root = new DirectoryInfo(dlg.SelectedPath);
+                DecompressFileAndItsChildren(root);
+            }
         }
 
         private static void CompressFileAndItsChildren(DirectoryInfo root)
@@ -193,11 +196,11 @@ namespace Lab5dotNet
             
             DirectoryInfo[] Dirs = root.GetDirectories();
             FileInfo[] Files = root.GetFiles("*");
-            foreach (var file in Files)
-            {
-                CompressFile(file.FullName);
-                File.Delete(file.FullName);
-            }
+            Parallel.For(0, Files.Length,
+                   index => {
+                       CompressFile(Files[index].FullName);
+                       File.Delete(Files[index].FullName);
+                   });
             foreach (var dir in Dirs)
             {
                 CompressFileAndItsChildren(dir);
@@ -209,11 +212,11 @@ namespace Lab5dotNet
 
             DirectoryInfo[] Dirs = root.GetDirectories();
             FileInfo[] Files = root.GetFiles("*");
-            foreach (var file in Files)
-            {
-                DecompressFile(file.FullName);
-                File.Delete(file.FullName);
-            }
+            Parallel.For(0, Files.Length,
+                   index => {
+                       DecompressFile(Files[index].FullName);
+                       File.Delete(Files[index].FullName);
+                   });
             foreach (var dir in Dirs)
             {
                 DecompressFileAndItsChildren(dir);
