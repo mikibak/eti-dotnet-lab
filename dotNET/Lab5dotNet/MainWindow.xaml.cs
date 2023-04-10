@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO.Compression;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -16,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+//using System.Windows.Forms;
 
 namespace Lab5dotNet
 {
@@ -145,7 +148,7 @@ namespace Lab5dotNet
                     currentNumber = previouspreviousNumber + previousNumber;
                     progress = (i* 100) / N;
                     bw.ReportProgress((int)progress);
-                    Thread.Sleep(100);
+                    Thread.Sleep(20);
                 }
                 args.Result = currentNumber;
             };
@@ -165,6 +168,72 @@ namespace Lab5dotNet
 
             //int result = 0;
             //calculateFibonacciTextBox.Text = result.ToString();
+        }
+
+        public void CompressFolder(object sender, RoutedEventArgs e)
+        {
+            var dlg = new System.Windows.Forms.FolderBrowserDialog() { Description = "Select directory to compress" };
+            System.Windows.Forms.DialogResult result = dlg.ShowDialog();
+            string folderName = System.IO.Path.GetFileName(dlg.SelectedPath);
+            DirectoryInfo root = new DirectoryInfo(dlg.SelectedPath);
+            CompressFileAndItsChildren(root);
+        }
+
+        public void DecompressFolder(object sender, RoutedEventArgs e)
+        {
+            var dlg = new System.Windows.Forms.FolderBrowserDialog() { Description = "Select directory to decompress" };
+            System.Windows.Forms.DialogResult result = dlg.ShowDialog();
+            string folderName = System.IO.Path.GetFileName(dlg.SelectedPath);
+            DirectoryInfo root = new DirectoryInfo(dlg.SelectedPath);
+            DecompressFileAndItsChildren(root);
+        }
+
+        private static void CompressFileAndItsChildren(DirectoryInfo root)
+        {
+            
+            DirectoryInfo[] Dirs = root.GetDirectories();
+            FileInfo[] Files = root.GetFiles("*");
+            foreach (var file in Files)
+            {
+                CompressFile(file.FullName);
+                File.Delete(file.FullName);
+            }
+            foreach (var dir in Dirs)
+            {
+                CompressFileAndItsChildren(dir);
+            }
+        }
+
+        private static void DecompressFileAndItsChildren(DirectoryInfo root)
+        {
+
+            DirectoryInfo[] Dirs = root.GetDirectories();
+            FileInfo[] Files = root.GetFiles("*");
+            foreach (var file in Files)
+            {
+                DecompressFile(file.FullName);
+                File.Delete(file.FullName);
+            }
+            foreach (var dir in Dirs)
+            {
+                DecompressFileAndItsChildren(dir);
+            }
+        }
+
+        private static void CompressFile(string path)
+        {
+            using FileStream originalFileStream = File.Open(path, FileMode.Open);
+            using FileStream compressedFileStream = File.Create(path + ".gz");
+            using var compressor = new GZipStream(compressedFileStream, CompressionMode.Compress);
+            originalFileStream.CopyTo(compressor);
+        }
+
+        private static void DecompressFile(string path)
+        {
+            using FileStream compressedFileStream = File.Open(path, FileMode.Open);
+            using FileStream outputFileStream = File.Create(path.Substring(0, path.Length - 3));
+            using var decompressor = new GZipStream(compressedFileStream, CompressionMode.Decompress);
+            decompressor.CopyTo(outputFileStream);
         }
     }
 }

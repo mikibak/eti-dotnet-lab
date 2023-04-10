@@ -20,6 +20,8 @@
         <Button x:Name="calculateNewtonSymbolDelegatesButton" Click="CalculateNewtonSymbolDelegates" Margin="62,139,526,245">Calculate newton symbol asynchronously using Delegates</Button>
         <Button x:Name="calculateNewtonSymbolAsyncAwaitButton" Click="CalculateNewtonSymbolAsyncAwait" Margin="554,139,34,245">Calculate newton symbol using async and await</Button>
         <Button x:Name="calculateFibonacciButton" Click="CalculateFibonacci" Margin="62,281,526,103">Calculate nth fib</Button>
+        <Button x:Name="compressButton" Click="CompressFolder" Margin="321,281,373,103">Compress Folder</Button>
+        <Button x:Name="decompressButton" Click="DecompressFolder" Margin="432,281,267,103">Decompress Folder</Button>
         <ProgressBar x:Name="progressBar" Margin="62,368,526,34"/>
     </Grid>
 </Window>
