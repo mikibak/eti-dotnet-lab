@@ -23,5 +23,7 @@
         <Button x:Name="compressButton" Click="CompressFolder" Margin="321,281,373,103">Compress Folder</Button>
         <Button x:Name="decompressButton" Click="DecompressFolder" Margin="432,281,267,103">Decompress Folder</Button>
         <ProgressBar x:Name="progressBar" Margin="62,368,526,34"/>
+        <Button x:Name="resolveDNS" Click="ResolveDNS" Margin="554,281,34,103">Resolve DNS</Button>
+        <TextBox x:Name="resolveDNSTextBox" Margin="554,336,34,34"/>
     </Grid>
 </Window>
