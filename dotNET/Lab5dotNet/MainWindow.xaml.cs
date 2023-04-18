@@ -77,13 +77,13 @@ namespace Lab5dotNet
             (int, int) tuple = (N, K);
             Task<int> taskUpper = new Task<int>((object obj) =>
             {
-                int result = N;
-                for (int i = 1; i < K; i++)
+                int result = 1;
+                for (int i = 1; i <= N; i++)
                 {
-                    result *= (N - i);
+                    result *= i;
                 }
                 return result;
-            }, tuple);
+            }, N);
             taskUpper.Start();
             taskUpper.Wait();
 
@@ -98,19 +98,39 @@ namespace Lab5dotNet
             }, K);
             taskLower.Start();
             taskLower.Wait();
-            int result = taskUpper.Result / taskLower.Result;
+
+            Task<int> taskLower2 = new Task<int>((object obj) =>
+            {
+                int result = 1;
+                for (int i = 1; i <= (N - K); i++)
+                {
+                    result *= i;
+                }
+                return result;
+            }, tuple);
+            taskLower2.Start();
+            taskLower2.Wait();
+
+            int result = taskUpper.Result / (taskLower.Result * taskLower2.Result);
             calculateNewtonSymbolTasksTextBox.Text = result.ToString();
         }
 
         public void CalculateNewtonSymbolDelegates(object sender, RoutedEventArgs e)
         {
+            var result = CalculateNewtonSymbolDelegatesHelper();
+            calculateNewtonSymbolDelegatesTextBox.Text = result.ToString();
+        }
+
+        public int CalculateNewtonSymbolDelegatesHelper()
+        {
             Func<int> upperDelegate = CalculateUpper;
             Func<int> lowerDelegate = CalculateLower;
+            Func<int> lower2Delegate = CalculateLower2;
 
             var upper = upperDelegate.BeginInvoke(null, null);
             var lower = lowerDelegate.BeginInvoke(null, null);
-            int result = upperDelegate.EndInvoke(upper) / lowerDelegate.EndInvoke(lower);
-            calculateNewtonSymbolDelegatesTextBox.Text = result.ToString();
+            var lower2 = lower2Delegate.BeginInvoke(null, null);
+            return upperDelegate.EndInvoke(upper) / (lowerDelegate.EndInvoke(lower) * lower2Delegate.EndInvoke(lower2));
         }
 
         private static List<Tuple<string, string>> GetAdresses(string[] hostNames)
@@ -142,16 +162,17 @@ namespace Lab5dotNet
         {
             var upper = await Task.Run(() => CalculateUpper());
             var lower = await Task.Run(() => CalculateLower());
-            int result = upper / lower;
+            var lower2 = await Task.Run(() => CalculateLower2());
+            int result = upper / (lower * lower2);
             calculateNewtonSymbolAsyncAwaitTextBox.Text = result.ToString();
         }
 
         private int CalculateUpper()
         {
-            int result = N;
-            for (int i = 1; i < K; i++)
+            int result = 1;
+            for (int i = 1; i <= N; i++)
             {
-                result *= (N - i);
+                result *= i;
             }
             return result;
         }
@@ -160,6 +181,16 @@ namespace Lab5dotNet
         {
             int result = 1;
             for (int i = 1; i <= K; i++)
+            {
+                result *= i;
+            }
+            return result;
+        }
+
+        private int CalculateLower2()
+        {
+            int result = 1;
+            for (int i = 1; i <= (N - K); i++)
             {
                 result *= i;
             }
@@ -183,7 +214,7 @@ namespace Lab5dotNet
                     currentNumber = previouspreviousNumber + previousNumber;
                     progress = (i* 100) / N;
                     bw.ReportProgress((int)progress);
-                    Thread.Sleep(20);
+                    Thread.Sleep(30);
                 }
                 args.Result = currentNumber;
             };
