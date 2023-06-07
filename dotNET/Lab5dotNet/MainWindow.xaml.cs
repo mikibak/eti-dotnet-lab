@@ -26,8 +26,8 @@ namespace Lab5dotNet
 {
     public partial class MainWindow : Window
     {
-        public int N { get; set; }
-        public int K { get; set; }
+        public double N { get; set; }
+        public double K { get; set; }
 
         string[] hostNames = { "www.microsoft.com", "www.apple.com",
             "www.google.com", "www.ibm.com", "cisco.netacad.net",
@@ -47,8 +47,8 @@ namespace Lab5dotNet
         private void nChangedEventHandler(object sender, TextChangedEventArgs args)
         {
             TextBox t = (TextBox)sender;
-            int i;
-            if(int.TryParse(t.Text, out i) && i >= 0 && i <= 9999)
+            double i;
+            if(double.TryParse(t.Text, out i) && i >= 0 && i <= 9999)
             {
                 N = i;
             }
@@ -61,8 +61,8 @@ namespace Lab5dotNet
         private void kChangedEventHandler(object sender, TextChangedEventArgs args)
         {
             TextBox t = (TextBox)sender;
-            int i;
-            if (int.TryParse(t.Text, out i) && i >= 0 && i <= 9999)
+            double i;
+            if (double.TryParse(t.Text, out i) && i >= 0 && i <= 9999)
             {
                 K = i;
             }
@@ -74,11 +74,11 @@ namespace Lab5dotNet
 
         public void CalculateNewtonSymbolTasks(object sender, RoutedEventArgs e)
         {
-            (int, int) tuple = (N, K);
-            Task<int> taskUpper = new Task<int>((object obj) =>
+            (double, double) tuple = (N, K);
+            Task<double> taskUpper = new Task<double>((object obj) =>
             {
-                int result = 1;
-                for (int i = 1; i <= N; i++)
+                double result = 1;
+                for (double i = 1; i <= N; i++)
                 {
                     result *= i;
                 }
@@ -87,10 +87,10 @@ namespace Lab5dotNet
             taskUpper.Start();
             taskUpper.Wait();
 
-            Task<int> taskLower = new Task<int>((object obj) =>
+            Task<double> taskLower = new Task<double>((object obj) =>
             {
-                int result = 1;
-                for (int i = 1; i <= K; i++)
+                double result = 1;
+                for (double i = 1; i <= K; i++)
                 {
                     result *= i;
                 }
@@ -99,10 +99,10 @@ namespace Lab5dotNet
             taskLower.Start();
             taskLower.Wait();
 
-            Task<int> taskLower2 = new Task<int>((object obj) =>
+            Task<double> taskLower2 = new Task<double>((object obj) =>
             {
-                int result = 1;
-                for (int i = 1; i <= (N - K); i++)
+                double result = 1;
+                for (double i = 1; i <= (N - K); i++)
                 {
                     result *= i;
                 }
@@ -111,7 +111,7 @@ namespace Lab5dotNet
             taskLower2.Start();
             taskLower2.Wait();
 
-            int result = taskUpper.Result / (taskLower.Result * taskLower2.Result);
+            double result = taskUpper.Result / (taskLower.Result * taskLower2.Result);
             calculateNewtonSymbolTasksTextBox.Text = result.ToString();
         }
 
@@ -121,11 +121,11 @@ namespace Lab5dotNet
             calculateNewtonSymbolDelegatesTextBox.Text = result.ToString();
         }
 
-        public int CalculateNewtonSymbolDelegatesHelper()
+        public double CalculateNewtonSymbolDelegatesHelper()
         {
-            Func<int> upperDelegate = CalculateUpper;
-            Func<int> lowerDelegate = CalculateLower;
-            Func<int> lower2Delegate = CalculateLower2;
+            Func<double> upperDelegate = CalculateUpper;
+            Func<double> lowerDelegate = CalculateLower;
+            Func<double> lower2Delegate = CalculateLower2;
 
             var upper = upperDelegate.BeginInvoke(null, null);
             var lower = lowerDelegate.BeginInvoke(null, null);
@@ -163,34 +163,34 @@ namespace Lab5dotNet
             var upper = await Task.Run(() => CalculateUpper());
             var lower = await Task.Run(() => CalculateLower());
             var lower2 = await Task.Run(() => CalculateLower2());
-            int result = upper / (lower * lower2);
+            double result = upper / (lower * lower2);
             calculateNewtonSymbolAsyncAwaitTextBox.Text = result.ToString();
         }
 
-        private int CalculateUpper()
+        private double CalculateUpper()
         {
-            int result = 1;
-            for (int i = 1; i <= N; i++)
+            double result = 1;
+            for (double i = 1; i <= N; i++)
             {
                 result *= i;
             }
             return result;
         }
 
-        private int CalculateLower()
+        private double CalculateLower()
         {
-            int result = 1;
-            for (int i = 1; i <= K; i++)
+            double result = 1;
+            for (double i = 1; i <= K; i++)
             {
                 result *= i;
             }
             return result;
         }
 
-        private int CalculateLower2()
+        private double CalculateLower2()
         {
-            int result = 1;
-            for (int i = 1; i <= (N - K); i++)
+            double result = 1;
+            for (double i = 1; i <= (N - K); i++)
             {
                 result *= i;
             }
@@ -203,12 +203,12 @@ namespace Lab5dotNet
             bw.DoWork += (object sender, DoWorkEventArgs args) =>
             {
                 BackgroundWorker worker = sender as BackgroundWorker;
-                long previouspreviousNumber;
-                long previousNumber = 0;
-                long progress = 0;
-                long currentNumber = 1;
+                double previouspreviousNumber;
+                double previousNumber = 0;
+                double progress = 0;
+                double currentNumber = 1;
 
-                for (int i = 1; i < N; i++) {
+                for (double i = 1; i < N; i++) {
                     previouspreviousNumber = previousNumber;
                     previousNumber = currentNumber;
                     currentNumber = previouspreviousNumber + previousNumber;
@@ -232,7 +232,7 @@ namespace Lab5dotNet
             bw.WorkerReportsProgress = true;
             bw.RunWorkerAsync(100);
 
-            //int result = 0;
+            //double result = 0;
             //calculateFibonacciTextBox.Text = result.ToString();
         }
 
