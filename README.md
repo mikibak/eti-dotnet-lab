@@ -1,4 +1,4 @@
-# eti-dotnet-lab
+# eti-dotnet-projects
 
 There are four projects in this repository, each one is made to practice a different tool in C#:
 
